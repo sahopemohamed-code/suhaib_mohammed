@@ -1,0 +1,103 @@
+{% extends "routes/base.html" %}
+{% block title %}{{ route.origin }} → {{ route.destination }} · BusNet{% endblock %}
+{% block content %}
+<div class="hero">
+  <div class="container position-relative">
+    <a href="{% url 'index' %}" class="btn btn-sm btn-outline-light mb-3 rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    <div class="d-flex align-items-center gap-4 flex-wrap">
+      <div>
+        <div class="small fw-bold mb-1" style="color:#7dd3fc">ORIGIN</div>
+        <h2 class="fw-900 mb-0 text-white">{{ route.origin.name }}</h2>
+        <div style="color:#7dd3fc"><i class="bi bi-geo-alt me-1"></i>{{ route.origin.city }}</div>
+      </div>
+      <i class="bi bi-arrow-right display-4" style="color:#38bdf8"></i>
+      <div>
+        <div class="small fw-bold mb-1" style="color:#7dd3fc">DESTINATION</div>
+        <h2 class="fw-900 mb-0 text-white">{{ route.destination.name }}</h2>
+        <div style="color:#7dd3fc"><i class="bi bi-geo-alt me-1"></i>{{ route.destination.city }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="card mb-4">
+        <div class="card-header"><i class="bi bi-info-circle me-2"></i>Route Information</div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="text-muted small">Duration</div>
+              <div class="fw-bold fs-5"><i class="bi bi-clock me-1" style="color:var(--brand)"></i>{{ route.duration }} min</div>
+            </div>
+            <div class="col-6">
+              <div class="text-muted small">Passengers</div>
+              <div class="fw-bold fs-5"><i class="bi bi-people me-1" style="color:var(--brand)"></i>{{ route.passengers.count }}</div>
+            </div>
+          </div>
+          <hr>
+          <div class="mb-1 text-muted small">From Station</div>
+          <a href="{% url 'station_detail' route.origin.id %}" class="text-decoration-none text-dark fw-semibold">{{ route.origin.name }} — {{ route.origin.city }}</a>
+          <div class="mt-2 mb-1 text-muted small">To Station</div>
+          <a href="{% url 'station_detail' route.destination.id %}" class="text-decoration-none text-dark fw-semibold">{{ route.destination.name }} — {{ route.destination.city }}</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><i class="bi bi-ticket-perforated me-2"></i>Book a Seat</div>
+        <div class="card-body p-4">
+          {% if user.is_authenticated %}
+            {% if is_booked %}
+            <div class="alert alert-success mb-3"><i class="bi bi-check-circle-fill me-2"></i>You have a seat on this route!</div>
+            <form method="post" action="{% url 'unbook_route' route.id %}">{% csrf_token %}
+              <button type="submit" class="btn btn-danger w-100"><i class="bi bi-x-circle me-2"></i>Cancel My Booking</button>
+            </form>
+            {% else %}
+            <p class="text-muted mb-3">Reserve your seat now.</p>
+            <form method="post" action="{% url 'book_route' route.id %}">{% csrf_token %}
+              <button type="submit" class="btn btn-success w-100 py-2"><i class="bi bi-check2-circle me-2"></i>Book This Route</button>
+            </form>
+            {% endif %}
+          {% else %}
+          <div class="text-center py-2">
+            <i class="bi bi-lock display-6 text-muted d-block mb-3"></i>
+            <p class="text-muted">You need to log in to book a seat.</p>
+            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary w-100 mb-2"><i class="bi bi-box-arrow-in-right me-2"></i>Login to Book</a>
+            <a href="{% url 'register' %}" class="btn btn-outline-primary w-100">Create an Account</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-people-fill me-2"></i>Passengers</span>
+          <span class="badge bg-white text-primary">{{ route.passengers.count }}</span>
+        </div>
+        <div class="card-body p-4">
+          {% if route.passengers.all %}
+          <div class="row g-2">
+            {% for passenger in route.passengers.all %}
+            <div class="col-sm-6">
+              <div class="item-row d-flex align-items-center gap-3 p-2">
+                <div class="passenger-avatar">{{ passenger.username|first|upper }}</div>
+                <div>
+                  <div class="fw-semibold">{{ passenger.username }}</div>
+                  {% if passenger == user %}<span class="stat-pill" style="font-size:.7rem">You</span>{% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state py-4">
+            <i class="bi bi-person-x d-block mb-2" style="font-size:2.5rem"></i>
+            <p class="mb-0 text-muted">No passengers yet — be the first!</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

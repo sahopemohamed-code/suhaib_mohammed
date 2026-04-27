@@ -1,0 +1,48 @@
+{% extends "routes/base.html" %}
+{% block title %}My Routes · BusNet{% endblock %}
+{% block content %}
+<div class="hero">
+  <div class="container position-relative">
+    <h1><i class="bi bi-bookmark-heart me-2"></i>My Booked Routes</h1>
+    <p class="mb-0">All the routes you've reserved a seat on.</p>
+  </div>
+</div>
+<div class="container py-4">
+  {% if routes %}
+  <div class="row g-3">
+    {% for route in routes %}
+    <div class="col-md-6 col-xl-4">
+      <div class="card h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="flex-grow-1">
+              <div class="fw-bold fs-5 text-dark">{{ route.origin.name }}</div>
+              <div class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ route.origin.city }}</div>
+            </div>
+            <i class="bi bi-arrow-right route-arrow mx-3"></i>
+            <div class="flex-grow-1 text-end">
+              <div class="fw-bold fs-5 text-dark">{{ route.destination.name }}</div>
+              <div class="text-muted small">{{ route.destination.city }}</div>
+            </div>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="stat-pill"><i class="bi bi-clock me-1"></i>{{ route.duration }} min</span>
+            <span class="stat-pill"><i class="bi bi-people me-1"></i>{{ route.passenger_count }}</span>
+            <a href="{% url 'route_detail' route.id %}" class="btn btn-sm btn-primary">Details <i class="bi bi-chevron-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-bus-front d-block"></i>
+    <h4 class="text-muted">No bookings yet</h4>
+    <p class="text-muted">Browse routes and book your first seat!</p>
+    <a href="{% url 'index' %}" class="btn btn-primary px-4">Browse Routes</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
